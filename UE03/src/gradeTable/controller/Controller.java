@@ -122,7 +122,7 @@ public class Controller {
         TableColumn<Results, Number> sumColumn = new TableColumn<>("Sum");
         sumColumn.setCellValueFactory(
                 (TableColumn.CellDataFeatures<Results, Number> param) -> {
-                    Integer sum = Arrays.stream(param.getValue().points)
+                    int sum = Arrays.stream(param.getValue().points)
                             .filter(p -> p.getValue() >= 0)
                             .mapToInt(IntegerExpression::getValue)
                             .sum();
@@ -144,11 +144,11 @@ public class Controller {
                         return new SimpleStringProperty("Nicht Genügend");
                     }
 
-                    Integer sum = Arrays.stream(param.getValue().points)
+                    int sum = Arrays.stream(param.getValue().points)
                             .filter(p -> p.getValue() >= 0)
                             .mapToInt(IntegerExpression::getValue)
                             .sum();
-                    Double percentage = (double) sum * 100.0 / (Results.MAX_POINTS * Results.NR_ASSIGNMENTS);
+                    double percentage = (double) sum * 100.0 / (Results.MAX_POINTS * Results.NR_ASSIGNMENTS);
 
                     if (percentage >= 87.5) {
                         return new SimpleStringProperty("Sehr Gut");

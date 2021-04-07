@@ -15,10 +15,6 @@ public class DialogController {
     private GradeTableModel model;
     private Stage stage;
 
-    public DialogController() {
-
-    }
-
     public void setModel(GradeTableModel model) {
         this.model = model;
     }
