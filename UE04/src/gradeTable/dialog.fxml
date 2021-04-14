@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="182.0" prefWidth="368.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gradeTable.controller.DialogController">
+   <children>
+      <VBox prefHeight="234.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefWidth="200.0">
+               <children>
+                  <Label minHeight="-Infinity" text="Student ID:" />
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="studentIdInput">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefWidth="200.0">
+               <children>
+                  <Label minHeight="-Infinity" text="Student Name:" />
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="studentNameInput">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefWidth="200.0">
+               <children>
+                  <Label minHeight="-Infinity" text="Student First Name:" />
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="studentFirstNameInput">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefWidth="200.0">
+               <children>
+                  <Label minHeight="-Infinity" text="Study Number:" />
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <ChoiceBox fx:id="studyNumberInput">
+                     <HBox.margin>
+                        <Insets right="10.0" top="-3.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label fx:id="errorMsg" text="Empty fields!" textFill="RED" visible="false">
+                     <HBox.margin>
+                        <Insets top="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <Button fx:id="addBtn" mnemonicParsing="false" text="Add">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin></Button>
+               </children>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
