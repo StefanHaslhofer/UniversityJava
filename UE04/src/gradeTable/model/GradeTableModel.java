@@ -71,7 +71,6 @@ public class GradeTableModel {
 
         try {
             dbManager.openConnection(false);
-            dbManager.printMetadata();
 
             results = dbManager.importResults();
 

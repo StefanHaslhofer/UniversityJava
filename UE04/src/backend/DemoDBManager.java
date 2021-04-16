@@ -67,15 +67,6 @@ public class DemoDBManager {
         dbConnection = null;
     }
 
-    public void printMetadata() throws SQLException {
-        DatabaseMetaData metaData = dbConnection.getMetaData();
-        ResultSet tableMetaData = metaData.getTables(null, null, null, null);
-        while (tableMetaData.next()) {
-            System.out.println(tableMetaData.getString("TABLE_NAME") + ", " + tableMetaData.getString("TABLE_TYPE")
-                    + ", " + tableMetaData.getString("TABLE_SCHEM"));
-        }
-    }
-
     public void openConnection(boolean newDb) throws SQLException {
         if (dbConnection != null && !dbConnection.isClosed()) {
             throw new SQLException("DB Session not closed");
@@ -87,7 +78,8 @@ public class DemoDBManager {
             e.printStackTrace();
         }
 
-        if (newDb) {
+        // create tables if they are not available
+        if (newDb || !dbConnection.getMetaData().getTables(null, null, "STUDENT", null).next()) {
             deleteTables();
             createTables();
         }
