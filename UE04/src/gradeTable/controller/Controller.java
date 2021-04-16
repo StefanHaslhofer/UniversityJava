@@ -1,6 +1,5 @@
 package gradeTable.controller;
 
-import backend.DemoDBManager;
 import gradeTable.model.GradeTableModel;
 import gradeTable.model.Results;
 import gradeTable.model.Student;
@@ -18,10 +17,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class Controller {
     private Stage primaryStage;
@@ -110,10 +106,12 @@ public class Controller {
                 // only change value if it is either between boundaries or -1
                 if (e.getNewValue().intValue() == -1 ||
                         (e.getNewValue().intValue() <= Results.MAX_POINTS && e.getNewValue().intValue() >= Results.MIN_POINTS)) {
-                    e.getTableView()
-                            .getItems()
-                            .get(e.getTablePosition().getRow())
-                            .setPoints(e.getTablePosition().getColumn() - 4, e.getNewValue().intValue());
+                    Results r = e.getTableView()
+                             .getItems()
+                             .get(e.getTablePosition().getRow());
+
+                    // update points in database
+                    this.model.updatePoints(e.getTablePosition().getColumn() - 4, e.getNewValue().intValue(), r);
                 }
 
                 // refresh table

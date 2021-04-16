@@ -2,8 +2,6 @@ package backend;
 
 import gradeTable.model.Results;
 import gradeTable.model.Student;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -183,6 +181,10 @@ public class DemoDBManager {
                 throw new RuntimeException("Failed to add points for student to database");
             }
 
+            // set points initially to -1
+            for (int i = 0; i < NR_ASSIGNMENTS; i++) {
+                updatePointsProperty("A" + (i + 1), -1, studentId);
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -273,14 +275,6 @@ public class DemoDBManager {
                     final Student item = new Student(items.getString(STUDENT_ID), items.getString(STUDENT_FIRST_NAME),
                             items.getString(STUDENT_LAST_NAME), items.getInt(STUDENT_SKZ));
 
-                    item.firstNameProperty().addListener(new ChangeListener<String>() {
-
-                        @Override
-                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                            updateStudentProperty(STUDENT_FIRST_NAME, newValue, item.getId());
-                        }
-
-                    });
                     imported.add(item);
                 }
             }
@@ -305,14 +299,14 @@ public class DemoDBManager {
         try {
             // try-statements for auto-closing
             selectPointsQuery = dbConnection.prepareStatement(SELECT_POINTS_ID);
-                selectPointsQuery.setString(POINTS_PARAM_ID, studentId);
-                final ResultSet items = selectPointsQuery.executeQuery();
+            selectPointsQuery.setString(POINTS_PARAM_ID, studentId);
+            final ResultSet items = selectPointsQuery.executeQuery();
 
-                while (items.next()) {
-                    for (int i = 0; i < NR_ASSIGNMENTS; i++) {
-                        imported[i] = items.getInt("A" + (i + 1));
-                    }
+            while (items.next()) {
+                for (int i = 0; i < NR_ASSIGNMENTS; i++) {
+                    imported[i] = items.getInt("A" + (i + 1));
                 }
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

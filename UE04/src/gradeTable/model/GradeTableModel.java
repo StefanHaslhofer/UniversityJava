@@ -4,6 +4,7 @@ package gradeTable.model;
 import backend.DemoDBManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,12 +25,16 @@ public class GradeTableModel {
     }
 
     public void addResult(Student student) {
-        this.results.add(new Results(student));
         try {
             dbManager.openConnection(false);
             this.dbManager.addStudent(student.getId(), student.getFirstName(), student.getLastName(), student.getSkz());
+            this.results.add(new Results(student));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            if (ex.getCause().getClass().equals(DerbySQLIntegrityConstraintViolationException.class)) {
+                System.out.println("StudentId is already present!");
+            } else {
+                ex.printStackTrace();
+            }
         }
         dbManager.closeConnection();
     }
@@ -39,6 +44,17 @@ public class GradeTableModel {
         try {
             dbManager.openConnection(false);
             this.dbManager.deleteStudent(r.student.getId());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        dbManager.closeConnection();
+    }
+
+    public void updatePoints(int index, int value, Results r) {
+        r.setPoints(index, value);
+        try {
+            dbManager.openConnection(false);
+            this.dbManager.updatePointsProperty("A"+(index+1), value, r.student.getId());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
