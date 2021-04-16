@@ -1,18 +1,13 @@
 package backend;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
+import gradeTable.model.Results;
 import gradeTable.model.Student;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static gradeTable.model.Results.NR_ASSIGNMENTS;
 
@@ -48,11 +43,11 @@ public class DemoDBManager {
     private static final int DELETE_STUDENT_PARAM_ID = 1;
 
 
-
     private static final String POINTS_TABLE_NAME = "Points";
     private static final String POINTS_STUDENT_ID = "StudentId";
 
-    private static final String IMPORT_POINTS = "SELECT * from " + POINTS_TABLE_NAME;
+    private static final String INSERT_POINTS = "INSERT INTO " + POINTS_TABLE_NAME + " (" + POINTS_STUDENT_ID + ") VALUES (?)";
+    private static final int INSERT_POINTS_PARAM_ID = 1;
 
     private static final String SELECT_POINTS_ID = "SELECT * from " + POINTS_TABLE_NAME + " WHERE " + POINTS_STUDENT_ID + "=?";
     private static final int POINTS_PARAM_ID = 1;
@@ -114,6 +109,7 @@ public class DemoDBManager {
 
     private void deleteTables() {
         try (Statement statement = dbConnection.createStatement()) {
+            statement.execute(String.format("DROP TABLE %s", POINTS_TABLE_NAME));
             statement.execute(String.format("DROP TABLE %s", STUDENT_TABLE_NAME));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,48 +133,78 @@ public class DemoDBManager {
             StringBuilder s = new StringBuilder();
 
             // append columns for each
-            for(int i = 0; i<NR_ASSIGNMENTS; i++) {
-                s.append("A").append(i+1).append(" INTEGER");
-                if(i<NR_ASSIGNMENTS-1) {
+            for (int i = 0; i < NR_ASSIGNMENTS; i++) {
+                s.append("A").append(i + 1).append(" INTEGER");
+                if (i < NR_ASSIGNMENTS - 1) {
                     s.append(",");
                 }
             }
 
-            statement.execute(String.format("CREATE TABLE %s (" + s.toString() + ")",
-                    POINTS_TABLE_NAME));
+            // we create a foreign key to student
+            statement.execute(String.format("CREATE TABLE %s ( %s VARCHAR(15) PRIMARY KEY REFERENCES "
+                            + STUDENT_TABLE_NAME + "(id), " + s.toString() + ")",
+                    POINTS_TABLE_NAME, POINTS_STUDENT_ID));
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public String addStudent(String id, String firstName, String lastName, Integer skz) {
-        try (PreparedStatement insertStatement = dbConnection.prepareStatement(INSERT_STUDENT,
-                Statement.RETURN_GENERATED_KEYS)) {
-
+        try {
+            PreparedStatement insertStatement = dbConnection.prepareStatement(INSERT_STUDENT,
+                    Statement.RETURN_GENERATED_KEYS);
             insertStatement.setString(INSERT_STUDENT_PARAM_ID, id);
             insertStatement.setString(INSERT_STUDENT_PARAM_FIRST_NAME, firstName);
             insertStatement.setString(INSERT_STUDENT_PARAM_LAST_NAME, lastName);
             insertStatement.setInt(INSERT_STUDENT_PARAM_SKZ, skz);
+
 
             final int affectedRows = insertStatement.executeUpdate();
             if (affectedRows != 1) {
                 throw new RuntimeException("Failed to add new person to database");
             }
 
-            // return created person ID (primary key)
-            try (ResultSet generatedKeys = insertStatement.getGeneratedKeys()) {
-                generatedKeys.next();
-                return generatedKeys.getString(1);
-            }
+            addPoints(id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return id;
     }
 
+    private String addPoints(String studentId) {
+        PreparedStatement insertStatement = null;
+        try {
+            insertStatement = dbConnection.prepareStatement(INSERT_POINTS);
+            insertStatement.setString(INSERT_POINTS_PARAM_ID, studentId);
 
-    public void updateProperty(String colName, Object val, String studentID) {
-        try (final PreparedStatement updateStatement = dbConnection
-                .prepareStatement(String.format(UPDATE_STUDENT_PROPERTY, colName))) {
+            final int affectedRows = insertStatement.executeUpdate();
+            if (affectedRows != 1) {
+                throw new RuntimeException("Failed to add points for student to database");
+            }
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            // i found in the documentation that it is best practice to close statements afterwards
+            if (insertStatement != null) {
+                try {
+                    insertStatement.close();
+                } catch (SQLException ex) {
+                    System.out.println("Could not close query");
+                }
+            }
+        }
+
+        return studentId;
+    }
+
+    public void updateStudentProperty(String colName, Object val, String studentID) {
+        PreparedStatement updateStatement = null;
+        try {
+            updateStatement = dbConnection
+                    .prepareStatement(String.format(UPDATE_STUDENT_PROPERTY, colName));
             if (val instanceof String) {
                 updateStatement.setString(UPDATE_STUDENT_PARAM_VALUE, (String) val);
             } else if (val instanceof Integer) {
@@ -186,17 +212,50 @@ public class DemoDBManager {
             }
             updateStatement.setString(UPDATE_STUDENT_PARAM_ID, studentID);
             updateStatement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (updateStatement != null) {
+                try {
+                    updateStatement.close();
+                } catch (SQLException ex) {
+                    System.out.println("Could not close query");
+                }
+            }
+        }
+    }
+
+    public void updatePointsProperty(String colName, Integer val, String studentID) {
+        PreparedStatement updateStatement = null;
+        try {
+            updateStatement = dbConnection.prepareStatement(String.format(UPDATE_POINTS_PROPERTY, colName));
+            updateStatement.setInt(UPDATE_POINT_PARAM_VALUE, val);
+            updateStatement.setString(UPDATE_STUDENT_PARAM_ID, studentID);
+            updateStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (updateStatement != null) {
+                try {
+                    updateStatement.close();
+                } catch (SQLException ex) {
+                    System.out.println("Could not close query");
+                }
+            }
         }
     }
 
     public void deleteStudent(String studentID) {
-        try (final PreparedStatement deleteStatement = dbConnection
-                .prepareStatement(DELETE_STUDENT)) {
+        try {
+            // if we delete a student we have to delete all ratings
+            final PreparedStatement deletePointsStatement = dbConnection.prepareStatement(DELETE_POINTS);
+            deletePointsStatement.setString(DELETE_POINTS_PARAM_ID, studentID);
+            deletePointsStatement.executeUpdate();
 
-            deleteStatement.setString(DELETE_STUDENT_PARAM_ID, studentID);
-            deleteStatement.executeUpdate();
+            final PreparedStatement deleteStudentStatement = dbConnection.prepareStatement(DELETE_STUDENT);
+            deleteStudentStatement.setString(DELETE_STUDENT_PARAM_ID, studentID);
+            deleteStudentStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -204,30 +263,86 @@ public class DemoDBManager {
 
     public List<Student> importStudents() {
         final List<Student> imported = new ArrayList<>();
+        PreparedStatement personQuery = null;
 
         try {
             // try-statements for auto-closing
-            try (PreparedStatement personQuery = dbConnection.prepareStatement(IMPORT_STUDENTS)) {
-                try (final ResultSet items = personQuery.executeQuery()) {
-                    while (items.next()) {
-                        final Student item = new Student(items.getString(STUDENT_ID), items.getString(STUDENT_FIRST_NAME),
-                                items.getString(STUDENT_LAST_NAME), items.getInt(STUDENT_SKZ));
+            personQuery = dbConnection.prepareStatement(IMPORT_STUDENTS);
+            try (final ResultSet items = personQuery.executeQuery()) {
+                while (items.next()) {
+                    final Student item = new Student(items.getString(STUDENT_ID), items.getString(STUDENT_FIRST_NAME),
+                            items.getString(STUDENT_LAST_NAME), items.getInt(STUDENT_SKZ));
 
-                        item.firstNameProperty().addListener(new ChangeListener<String>() {
+                    item.firstNameProperty().addListener(new ChangeListener<String>() {
 
-                            @Override
-                            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                                updateProperty(STUDENT_FIRST_NAME, newValue, item.getId());
-                            }
+                        @Override
+                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                            updateStudentProperty(STUDENT_FIRST_NAME, newValue, item.getId());
+                        }
 
-                        });
-                        imported.add(item);
-                    }
+                    });
+                    imported.add(item);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (personQuery != null) {
+                try {
+                    personQuery.close();
+                } catch (SQLException ex) {
+                    System.out.println("Could not close query");
+                }
+            }
         }
+
+        return imported;
+    }
+
+    public Integer[] selectPoints(String studentId) {
+        Integer[] imported = new Integer[NR_ASSIGNMENTS];
+        PreparedStatement selectPointsQuery = null;
+        try {
+            // try-statements for auto-closing
+            selectPointsQuery = dbConnection.prepareStatement(SELECT_POINTS_ID);
+                selectPointsQuery.setString(POINTS_PARAM_ID, studentId);
+                final ResultSet items = selectPointsQuery.executeQuery();
+
+                while (items.next()) {
+                    for (int i = 0; i < NR_ASSIGNMENTS; i++) {
+                        imported[i] = items.getInt("A" + (i + 1));
+                    }
+                }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (selectPointsQuery != null) {
+                try {
+                    selectPointsQuery.close();
+                } catch (SQLException ex) {
+                    System.out.println("Could not close query");
+                }
+            }
+        }
+
+        return imported;
+    }
+
+    /**
+     * We map points to students and create Result-Objects
+     *
+     * @return List of results
+     */
+    public List<Results> importResults() {
+        final List<Results> imported = new ArrayList<>();
+
+        final List<Student> students = this.importStudents();
+        students.forEach(s -> {
+            final Results result = new Results(s);
+            result.setPoints(selectPoints(s.getId()));
+            imported.add(result);
+        });
 
         return imported;
     }

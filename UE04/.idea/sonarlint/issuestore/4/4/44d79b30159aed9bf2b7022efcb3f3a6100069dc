@@ -1,0 +1,12 @@
+
+M
+java:S1128"2Remove this unused import 'backend.DemoDBManager'.(á÷àøÿÿÿÿ
+F
+java:S1128"0Remove this unused import 'java.util.ArrayList'.(÷‰îƒ
+H
+java:S1128"2Remove this unused import 'java.sql.SQLException'.(ÛïÆŸ
+F
+java:S1128"+Remove this unused import 'java.util.List'.(Õë±Äøÿÿÿÿ
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(Öâö©üÿÿÿÿ
+m
+java:S37760"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(ˆå¶šûÿÿÿÿ

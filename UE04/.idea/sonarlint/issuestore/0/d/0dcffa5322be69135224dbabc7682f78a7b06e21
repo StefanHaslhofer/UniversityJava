@@ -1,0 +1,41 @@
+
+h	java:S112 "FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+V	java:S106Ä"9Replace this use of System.out or System.err by a logger.(Üû…Í8±¬¶Ó/
+S
+java:S1068"6Remove this unused "SELECT_STUDENTS_ID" private field.(¡ƒÜ×8ÙÓ©¤/
+c	java:S112·"FDefine and throw a dedicated exception instead of using a generic one.(şÖß¢8“¦áÒ/
+V	java:S106ó"9Replace this use of System.out or System.err by a logger.(Üû…Í8Ÿ†ÂÓ/
+T
+java:S1068:"9Remove this unused "UPDATE_POINT_PARAM_ID" private field.(«Ìºƒûÿÿÿÿ
+t
+java:S1192Ã"VDefine a constant instead of duplicating this literal "Could not close query" 5 times.(Üû…Í8ƒëÀÓ/
+r
+java:S2095€"OUse try-with-resources or close this "PreparedStatement" in a "finally" clause.(ì‰•ıÿÿÿÿ8ÄğÒ/
+?
+java:S2115W")Add password protection to this database.(Ôôúå
+[	java:S112j"FDefine and throw a dedicated exception instead of using a generic one.(Ø—î
+h	java:S112¾"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+V	java:S106Ã"9Replace this use of System.out or System.err by a logger.(Üû…Í8ÀÉÅÓ/
+h	java:S112¼"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+h	java:S112í"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+l
+java:S1192"ODefine a constant instead of duplicating this literal "SELECT * from " 3 times.(ÃˆŠî8ÙÓ©¤/
+V	java:S106ß"9Replace this use of System.out or System.err by a logger.(Üû…Í8ƒëÀÓ/
+c	java:S112¤"FDefine and throw a dedicated exception instead of using a generic one.(„şÃİ8¡½¤/
+N	java:S106L"9Replace this use of System.out or System.err by a logger.(±‹ª
+e
+java:S1192"HDefine a constant instead of duplicating this literal " WHERE " 4 times.(¡ƒÜ×8ÙÓ©¤/
+d
+java:S3457"AFormat specifiers should be used instead of string concatenation.(„¶Çâûÿÿÿÿ8úµ™Ó/
+m
+java:S2095ü"OUse try-with-resources or close this "PreparedStatement" in a "finally" clause.(‘”ñï8ÄğÒ/
+V	java:S106¦"9Replace this use of System.out or System.err by a logger.(Üû…Í8Óó·Ó/
+K
+java:S1604”"(Make this anonymous inner class a lambda(¨ë§ùÿÿÿÿ8ÄğÒ/
+h	java:S112Ù"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+V
+java:S1068"4Remove this unused "STUDENT_PARAM_ID" private field.(÷¨øùøÿÿÿÿ8ÙÓ©¤/
+h	java:S112©"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8³İª¥/
+h	java:S112„"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÄğÒ/
+r
+java:S2095š"OUse try-with-resources or close this "PreparedStatement" in a "finally" clause.(Ò—æóüÿÿÿÿ8ò¼íÒ/

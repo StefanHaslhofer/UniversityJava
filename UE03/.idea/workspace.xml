@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="sonar lint UE03" />
+    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="sonar lint UE03">
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../UE04/resultsDB/db.lck" beforeDir="false" afterPath="$PROJECT_DIR$/../UE04/resultsDB/db.lck" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../UE04/src/backend/DemoDBManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../UE04/src/backend/DemoDBManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../UE04/src/gradeTable/model/Results.java" beforeDir="false" afterPath="$PROJECT_DIR$/../UE04/src/gradeTable/model/Results.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,7 +93,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dynamic.classpath" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../UE04" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.43563217" />
@@ -236,6 +242,7 @@
       <workItem from="1618336782753" duration="1000" />
       <workItem from="1618336879531" duration="45000" />
       <workItem from="1618336936667" duration="36000" />
+      <workItem from="1618493362410" duration="23000" />
     </task>
     <task id="LOCAL-00001" summary="UE03">
       <created>1617729082310</created>
@@ -288,10 +295,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="391" y="0" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1617836164230" />
-    <state x="686" y="211" key="FileChooserDialogImpl" timestamp="1618336950107">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1618471041096">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1618137518242" />
+    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1618471041096" />
     <state x="686" y="211" key="FileChooserDialogImpl/0.0.1920.1040/-2560.-149.2560.1400@0.0.1920.1040" timestamp="1618336950107" />
     <state width="1493" height="178" key="GridCell.Tab.0.bottom" timestamp="1617836102950">
       <screen x="0" y="0" width="1536" height="824" />

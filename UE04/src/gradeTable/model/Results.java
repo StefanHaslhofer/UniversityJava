@@ -27,5 +27,9 @@ public class Results {
         this.points[idx] = new SimpleIntegerProperty(ps);
     }
 
-
+    public void setPoints(Integer[] points) {
+        for(int i = 0; i < points.length; i++) {
+            this.points[i] = new SimpleIntegerProperty(points[i]);
+        }
+    }
 }

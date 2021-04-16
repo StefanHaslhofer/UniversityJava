@@ -45,6 +45,11 @@ public class GradeTableModel {
         dbManager.closeConnection();
     }
 
+    /**
+     * Opens the DB-connection and imports results already in database
+     *
+     * @return Observable list of results
+     */
     private ObservableList<Results> initData() {
         List<Results> results = new ArrayList<>();
 
@@ -52,11 +57,7 @@ public class GradeTableModel {
             dbManager.openConnection(false);
             dbManager.printMetadata();
 
-            List<Student> students = dbManager.importStudents();
-
-            for (Student s : students) {
-                results.add(new Results(s));
-            }
+            results = dbManager.importResults();
 
 
         } catch (SQLException ex) {
