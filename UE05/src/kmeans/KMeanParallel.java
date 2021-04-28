@@ -2,8 +2,8 @@ package kmeans;
 
 import java.awt.Color;
 import java.util.Random;
+import java.util.concurrent.*;
 
-import inout.In;
 import inout.Out;
 import inout.Window;
 
@@ -11,7 +11,9 @@ import inout.Window;
  * Sequential k-mean clustering algorithm.
  */
 @SuppressWarnings("unused")
-public class KMeanSeq {
+public class KMeanParallel {
+
+
 
     /**
      * Max values of x and y coordinates of data points
@@ -24,23 +26,14 @@ public class KMeanSeq {
     private static final Random RAND = new Random();
 
     private static final int N_EXPERIMENTS = 20;
+    private static final int THRESHHOLD = 1000;
+
+    private static final int PARALLELISM = 16;
 
     private boolean outputEnabled = true;
 
-    /**
-     * Creates random data points.
-     * x and y coordinates are randomly chosen between 0 and {@link SIZE}.
-     *
-     * @param n number of points
-     * @return array of n data points
-     */
-    public static DataPoint[] createRandomData(int n) {
-        DataPoint[] points = new DataPoint[n];
-        for (int i = 0; i < n; i++) {
-            points[i] = new DataPoint(RAND.nextInt(SIZE), RAND.nextInt(SIZE));
-        }
-        return points;
-    }
+    public final ExecutorService executor = Executors.newFixedThreadPool(PARALLELISM);
+    private CountDownLatch endLatch;
 
     // ---
 
@@ -66,19 +59,67 @@ public class KMeanSeq {
      * @param data the data points
      * @k the number of clusters
      */
-    public KMeanSeq(DataPoint[] data, int k) {
+    public KMeanParallel(DataPoint[] data, int k) {
         super();
         this.k = k;
         this.data = data;
         centroids = new Point[k];
     }
 
+    private class ClusterTask implements Callable<Boolean> {
+
+        private final int from;
+        private final int to;
+
+        private ClusterTask(int from, int to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public Boolean call() throws Exception {
+            boolean stable = true;
+            for (int i = this.from; i < this.to; i++) {
+                int closestCluster = getClosestCluster(data[i]);
+                if (stable && data[i].cluster != closestCluster) {
+                    stable = false;
+                }
+                data[i].cluster = closestCluster;
+            }
+
+            computeCentroids();
+
+            output();
+            endLatch.countDown();
+            return stable;
+        }
+    }
+
     /**
-     * Does the clustering of the data points.
-     * As a result, the data points get assigned ids for the clusters.
+     * Creates random data points.
+     * x and y coordinates are randomly chosen between 0 and {@link SIZE}.
+     *
+     * @param n number of points
+     * @return array of n data points
      */
-    public long cluster(boolean outputEnabled) {
+    public static DataPoint[] createRandomData(int n) {
+        DataPoint[] points = new DataPoint[n];
+        for (int i = 0; i < n; i++) {
+            points[i] = new DataPoint(RAND.nextInt(SIZE), RAND.nextInt(SIZE));
+        }
+        return points;
+    }
+
+    /**
+     * Main method to start execution
+     *
+     * @param outputEnabled       specifies if window and console output should be shown
+     *
+     * @return execution time
+     */
+    public long clusterParallel(boolean outputEnabled) {
         this.outputEnabled = outputEnabled;
+
         doInitialClustering();
 
         // measure start-time
@@ -100,6 +141,7 @@ public class KMeanSeq {
         return System.nanoTime() - startTime;
     }
 
+
     /**
      * Does a random initial clustering of the data points into k clusters.
      * As a result, the data points get assigned initial ids for clusters.
@@ -111,22 +153,78 @@ public class KMeanSeq {
     }
 
     /**
-     * Does a new clustering of the data points.
+     * Calls clustering tasks
      *
-     * @return true, if there was no change in the clustering, false otherwise.
+     * @return true, if all tasks were executed successfully, false otherwise
      */
     private boolean doNewClustering() {
-        boolean stable = true;
-        // TODO: parallelize using thread pool ---------------------
-        for (int i = 0; i < data.length; i++) {
-            int closestCluster = getClosestCluster(data[i]);
-            if (stable && data[i].cluster != closestCluster) {
-                stable = false;
-            }
-            data[i].cluster = closestCluster;
+        endLatch = new CountDownLatch(PARALLELISM);
+        Future<Boolean>[] clusterTaskRes = new Future[PARALLELISM];
+
+        int size = Math.round(data.length / PARALLELISM);
+        for (int i = 0; i < PARALLELISM; i++) {
+            clusterTaskRes[i] = executor.submit(new ClusterTask(i * size, (i + 1) * size));
         }
-        // ---------------------------------------------------------
-        return stable;
+        try {
+            endLatch.await();
+            for (Future<Boolean> r : clusterTaskRes) {
+                if (!r.get()) {
+                    return false;
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            return false;
+        }
+        executor.shutdown();
+        return true;
+    }
+
+    private class RecursiveSumTask extends RecursiveTask<int[][]> {
+
+        private final int from;
+        private final int to;
+
+        private RecursiveSumTask(int from, int to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        protected int[][] compute() {
+            int[][] sums = new int[3][k];
+            if (to - from < THRESHHOLD) {
+                return computeCentroids(from, to, sums);
+            } else {
+                int half = (from + to) / 2;
+                RecursiveSumTask task1 = new RecursiveSumTask(from, half + 1);
+                RecursiveSumTask task2 = new RecursiveSumTask(half + 1, to);
+                task1.fork();
+                task2.fork();
+
+                int[][] sum1 = task1.join();
+                int[][] sum2 = task2.join();
+
+                for (int i = 0; i < sums.length; i++) {
+                    for (int j = 0; j < sums[i].length; j++) {
+                        sums[i][j] = sum1[i][j] + sum2[i][j];
+                    }
+                }
+
+                return sums;
+            }
+        }
+
+        private int[][] computeCentroids(int from, int to, int[][]sums) {
+            for (int i = from; i < to; i++) {
+                sums[0][data[i].cluster] += data[i].x;
+                sums[1][data[i].cluster] += data[i].y;
+                sums[2][data[i].cluster]++;
+            }
+
+            return sums;
+
+
+        }
     }
 
     /**
@@ -134,19 +232,8 @@ public class KMeanSeq {
      * Result is are new points in the array {@link centroids}.
      */
     private void computeCentroids() {
-
-        // sums[0][j] sum of x-coordiantes of points in cluster j
-        // sums[1][j] sum of y-coordiantes of points in cluster j
-        // sums[2][j] number of points in cluster j
-        int[][] sums = new int[3][k];
-
-        // TODO: parallelize with fork-join recursive tasks ------------
-        for (int i = 0; i < data.length; i++) {
-            sums[0][data[i].cluster] += data[i].x;
-            sums[1][data[i].cluster] += data[i].y;
-            sums[2][data[i].cluster]++;
-        }
-        // -------------------------------------------------------------
+        RecursiveSumTask task = new RecursiveSumTask(0, data.length);
+        int[][] sums = ForkJoinPool.commonPool().invoke(task);
 
         for (int j = 0; j < centroids.length; j++) {
             if (sums[2][j] != 0) {
