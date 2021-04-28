@@ -4,11 +4,6 @@ import inout.Out;
 
 public class Main {
     /**
-     * Number of data points
-     */
-    private static final int N = 100000;
-
-    /**
      * Number of clusters
      */
     private static final int K = 7;
@@ -25,12 +20,21 @@ public class Main {
      * @param args not used
      */
     public static void main(String[] args) throws InterruptedException {
+        execute(100);
+        execute(1000);
+        execute(10000);
+        execute(100000);
+        execute(1000000);
+    }
+
+    public static void execute(int n) {
+        Out.println("Size: " + n);
         // execute
         long timeSum = 0;
 
         // execute 10 times for sequential time measurement
         for (int i = 0; i < EXECUTION_MULTIPLIER; i++) {
-            KMeanSeq kMeansAlgoSeq = new KMeanSeq(KMeanSeq.createRandomData(N), K);
+            KMeanSeq kMeansAlgoSeq = new KMeanSeq(KMeanSeq.createRandomData(n), K);
             long time = kMeansAlgoSeq.cluster(false);
 
             // ignore first try
@@ -38,13 +42,13 @@ public class Main {
                 timeSum += time;
             }
         }
-        Out.println("Completed " + (EXECUTION_MULTIPLIER - 2) + " sequential executions in " + timeSum);
+        Out.println("Completed " + (EXECUTION_MULTIPLIER - 2) + " sequential executions for size " + n + " in " + timeSum + " nanoseconds.");
 
 
         timeSum = 0;
         // execute 10 times for parallel time measurement
         for (int i = 0; i < EXECUTION_MULTIPLIER; i++) {
-            KMeanParallel kMeansAlgoPar = new KMeanParallel(KMeanParallel.createRandomData(N), K);
+            KMeanParallel kMeansAlgoPar = new KMeanParallel(KMeanParallel.createRandomData(n), K);
             long time = kMeansAlgoPar.clusterParallel(false);
 
             // ignore first try
@@ -52,6 +56,7 @@ public class Main {
                 timeSum += time;
             }
         }
-        Out.println("Completed " + (EXECUTION_MULTIPLIER - 2) + " parallel executions in " + timeSum);
+        Out.println("Completed " + (EXECUTION_MULTIPLIER - 2) + " parallel executions for size " + n + " in " + timeSum + " nanoseconds.");
+        Out.println();
     }
 }
