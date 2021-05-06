@@ -2,51 +2,53 @@ package com.company;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileWatcher {
-    private boolean stopWatcher = false;
+    private AtomicBoolean stop = new AtomicBoolean(false);
     private final String path;
+    private final Changes changes;
 
-    public FileWatcher(String path) {
+    public FileWatcher(String path, Changes changes) {
         this.path = path;
+        this.changes = changes;
     }
 
     public void startWatching() {
-        this.stopWatcher = false;
         try {
+            final Path path = Paths.get(this.path);
+            // set the directory in changes object
+            this.changes.fullFilePath = this.path;
             final WatchService watcherService = FileSystems.getDefault().newWatchService();
+            path.register(watcherService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
             Thread watcherThread = new Thread(() -> {
                 WatchKey key = null;
-                while (!stopWatcher) {
+                while (!this.stop.get()) {
                     try {
-                        key = watcherService.take();
-                        for (WatchEvent<?> evt : key.pollEvents()) {
-                            WatchEvent<Path> pevt = (WatchEvent<Path>) evt;
-                            Path relPath = pevt.context();
-                            Path dirPath = (Path) key.watchable();
-                            Path absPath = dirPath.resolve(relPath);
-                            if (pevt.kind() == ENTRY_CREATE) {
-                                if (Files.isDirectory(absPath)) {
-                                    try {
-                                        WatchKey k = absPath.register(watcherService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-                                    } catch (Exception e) {
-
-                                    }
-                                }
-                            } else if (pevt.kind() == ENTRY_MODIFY) {
-                            } else if (pevt.kind() == ENTRY_DELETE) {
-                            }
+                        key = watcherService.poll(3, TimeUnit.SECONDS);
+                        if (key != null) {
+                            // we cast events to WatchEvents and add them to our Changes datastructure
+                            // if they are coming from a txt, xml or java file
+                            changes.getEvents().addAll(key.pollEvents()
+                                    .stream()
+                                    .filter(evt -> evt.context().toString().contains(".txt") ||
+                                            evt.context().toString().contains(".xml") ||
+                                            evt.context().toString().contains(".java"))
+                                    .map(evt -> (WatchEvent<Path>)evt).collect(Collectors.toList()));
                         }
-                    } catch(InterruptedException ie) {
+                    } catch (InterruptedException ie) {
                         System.out.println("WatchService interrupted while waiting!");
                     } finally {
                         if (key != null) key.reset();
                     }
                 }
             });
+            watcherThread.setDaemon(true);
             watcherThread.start();
         } catch (IOException e) {
             System.out.println("WatchService could not be created!");
@@ -54,6 +56,6 @@ public class FileWatcher {
     }
 
     public void stopWatching() {
-        this.stopWatcher = true;
+        this.stop.set(true);
     }
 }
