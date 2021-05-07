@@ -109,6 +109,7 @@ public class FileSaver {
                     }
                 } catch (Exception e) {
                     System.out.println("Could not process event!");
+                    changes.deleteEventsByContext(null, event.context(), null);
                 }
             });
         }
