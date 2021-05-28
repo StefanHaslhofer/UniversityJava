@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -28,8 +29,7 @@ public class FileSaver {
     public void startSaving() {
         saveDirectoryAtStart();
         try {
-            final ScheduledFuture<?> saveFuture =
-                    executor.scheduleAtFixedRate(new SaveTask(this.changes, this.savePath), 1, 10, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(new SaveTask(this.changes, this.savePath), 1, 10, TimeUnit.SECONDS);
         } catch (IOException e) {
             System.out.println("Could not create destination byte channel!");
         }

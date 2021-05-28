@@ -2,11 +2,7 @@ package com.company;
 
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -43,12 +39,10 @@ public class Changes {
      * @param oldChanges Only delete an event if it is in present in this list. If null clear entire list
      */
     public void deleteEventsByContext(WatchEvent.Kind<Path> kind, Path path, CopyOnWriteArrayList<WatchEvent<Path>> oldChanges) {
-        synchronized (this.events) {
-            this.events.removeAll(this.events.stream()
-                    .filter(e -> e.context().equals(path)
-                            && (kind == null || e.kind().equals(kind))
-                            && (oldChanges == null || oldChanges.contains(e)))
-                    .collect(Collectors.toList()));
-        }
+        this.events.removeAll(this.events.stream()
+                .filter(e -> e.context().equals(path)
+                        && (kind == null || e.kind().equals(kind))
+                        && (oldChanges == null || oldChanges.contains(e)))
+                .collect(Collectors.toList()));
     }
 }
