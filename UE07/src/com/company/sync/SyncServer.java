@@ -5,8 +5,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static com.company.Constants.PORT;
+import static com.company.Protocol.*;
 
 public class SyncServer {
     private volatile boolean terminate = false;
@@ -48,7 +50,28 @@ public class SyncServer {
 
             try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
+                String clientName = receive(in);
+                String msg;
+                while (!(msg = receive(in)).equals(EOT)) {
+                    if (!msg.startsWith(SOF)) {
+                        System.out.println(SOF + " expected but received " + msg);
+                        return;
+                    } else {
+                        // the line after SOF needs to be the name
+                        Path filePath = Paths.get(clientName, receive(in));
+                        // delete file because we can assume the directory is empty when we start saving
+                        Files.deleteIfExists(filePath);
+                        Files.createFile(filePath);
+                        BufferedWriter bw = Files.newBufferedWriter(filePath);
+                        // append lines
+                        while (!(msg = receive(in)).equals(EOF)) {
+                            bw.write(msg+"\n");
+                        }
+                        bw.flush();
+                        bw.close();
+                        System.out.println(filePath.getFileName() + " saved");
+                    }
+                }
             } catch (IOException e) {
                 System.out.println("Read/write failed: " + e.getMessage());
             }

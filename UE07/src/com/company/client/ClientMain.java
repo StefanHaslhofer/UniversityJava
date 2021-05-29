@@ -1,8 +1,4 @@
-package com.company;
-
-import com.company.sync.SyncServer;
-
-import java.io.IOException;
+package com.company.client;
 
 public class ClientMain {
 
@@ -11,7 +7,7 @@ public class ClientMain {
 		// C:\Users\haslh\Documents\JKU\UniversityJava\Watch
 		// C:\Users\haslh\Documents\JKU\UniversityJava\Save
         // C:\\Users\\haslh\\Documents\\JKU\\UniversityJava\\ServerSave
-    	Client client = new Client("C:\\Users\\haslh\\Documents\\JKU\\UniversityJava\\Watch", "C:\\Users\\haslh\\Documents\\JKU\\UniversityJava\\Save", "C:\\Users\\haslh\\Documents\\JKU\\UniversityJava\\ServerSave");
+    	Client client = new Client("D:\\JKU\\Semester4\\UniversityJava\\Watch", "D:\\JKU\\Semester4\\UniversityJava\\Save", "D:\\JKU\\Semester4\\UniversityJava\\ServerSave");
         try {
             client.start();
         } catch (InterruptedException e) {

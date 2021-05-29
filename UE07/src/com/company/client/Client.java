@@ -1,15 +1,8 @@
-package com.company;
+package com.company.client;
 
 import com.company.saver.Changes;
 import com.company.saver.FileSaver;
 import com.company.saver.FileWatcher;
-
-
-import java.io.*;
-import java.net.Socket;
-
-import static com.company.Constants.PORT;
-import static com.company.Constants.SERVER;
 
 
 public class Client {
@@ -22,7 +15,7 @@ public class Client {
         Changes changes = new Changes();
 
         fileWatcher = new FileWatcher(watchDir, changes);
-        fileSaver = new FileSaver(saveDir, changes);
+        fileSaver = new FileSaver(saveDir, serverSaveDir, changes);
         this.name = serverSaveDir;
     }
 

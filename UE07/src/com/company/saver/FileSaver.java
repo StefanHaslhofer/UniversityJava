@@ -2,11 +2,9 @@ package com.company.saver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.*;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -14,8 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.company.Constants.PORT;
-import static com.company.Constants.SERVER;
+import static com.company.Protocol.*;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileSaver {
@@ -23,11 +20,13 @@ public class FileSaver {
     private final Changes changes;
     public final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private final String savePath;
+    private final String serverSaveDir;
 
 
-    public FileSaver(String savePath, Changes changes) {
+    public FileSaver(String savePath, String serverSaveDir, Changes changes) {
         this.changes = changes;
         this.savePath = savePath;
+        this.serverSaveDir = serverSaveDir;
     }
 
     public void startSaving() {
@@ -133,13 +132,19 @@ public class FileSaver {
 
         try (Socket socket = new Socket(SERVER, PORT);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             BufferedOutputStream writer = new BufferedOutputStream(socket.getOutputStream())) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream())) {
+            // the clients name is the first message
+            send(out, this.serverSaveDir);
             // iterate over files in directory
             for(File file: files) {
                 List<String> lines = Files.readAllLines(file.toPath());
+                send(out, SOF);
+                // the next line has to be the filename
+                send(out, file.getName());
                 for (String line : lines) {
-                    System.out.println(line);
+                    send(out, line);
                 }
+                send(out, EOF);
             }
         } catch (IOException e) {
             e.printStackTrace();

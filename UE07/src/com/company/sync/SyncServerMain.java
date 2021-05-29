@@ -1,7 +1,5 @@
 package com.company.sync;
 
-import com.company.Client;
-
 import java.io.IOException;
 
 public class SyncServerMain {

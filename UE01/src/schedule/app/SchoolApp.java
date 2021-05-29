@@ -125,7 +125,7 @@ public class SchoolApp {
         Set<Lesson> teacherUnitsPerDay = sch.teacherUnitsPerDay(maier, Day.Thu);
 		System.out.println(teacherUnitsPerDay.toString() + "\n");
 
-        Set<Lesson> teacherUnitsPerClass = sch.teacherUnitsPerClass(maier, a1);
+        Set<Lesson> teacherUnitsPerClass = sch.teacherUnitsPerClass(reisner, a1);
 		System.out.println(teacherUnitsPerClass.toString() + "\n");
 
         Set<Lesson> teacherUnitsPerLesson = sch.teacherUnitsPerLesson(maier, Math);
