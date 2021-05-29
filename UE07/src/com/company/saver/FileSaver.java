@@ -1,9 +1,12 @@
 package com.company.saver;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -11,6 +14,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.company.Constants.PORT;
+import static com.company.Constants.SERVER;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileSaver {
@@ -111,6 +116,33 @@ public class FileSaver {
                     changes.deleteEventsByContext(null, event.context(), null);
                 }
             });
+
+
+            // start saving to the server after the files have been written to the local directory
+            try {
+                saveToServer();
+            } catch (Exception ex) {
+                System.out.println("Could not start communication with server " + SERVER + ":" + PORT);
+            }
+        }
+    }
+
+
+    private void saveToServer() {
+        File[] files = new File(savePath).listFiles();
+
+        try (Socket socket = new Socket(SERVER, PORT);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             BufferedOutputStream writer = new BufferedOutputStream(socket.getOutputStream())) {
+            // iterate over files in directory
+            for(File file: files) {
+                List<String> lines = Files.readAllLines(file.toPath());
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
