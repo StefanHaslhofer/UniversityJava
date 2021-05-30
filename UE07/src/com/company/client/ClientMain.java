@@ -10,10 +10,10 @@ public class ClientMain {
         // true
         boolean isAsync = false;
         // the forth argument indicates if client is async or not
-        //if(args[3].equals("1")) {
-        //    isAsync = true;
-        //}
-    	Client client = new Client("D:\\JKU\\Semester4\\UniversityJava\\Watch", "D:\\JKU\\Semester4\\UniversityJava\\Save", "D:\\JKU\\Semester4\\UniversityJava\\ServerSave", true);
+        if(args[3].equals("1")) {
+            isAsync = true;
+        }
+    	Client client = new Client(args[0], args[1], args[2], isAsync);
         try {
             client.start();
         } catch (InterruptedException e) {

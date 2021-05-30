@@ -9,14 +9,12 @@ public class Client {
 
     private final FileWatcher fileWatcher;
     private final FileSaver fileSaver;
-    private final String name;
 
     public Client(String watchDir, String saveDir, String serverSaveDir, boolean isAsync) {
         Changes changes = new Changes();
 
         fileWatcher = new FileWatcher(watchDir, changes);
         fileSaver = new FileSaver(saveDir, serverSaveDir, changes, isAsync);
-        this.name = serverSaveDir;
     }
 
     public void start() throws InterruptedException {

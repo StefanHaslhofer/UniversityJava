@@ -30,7 +30,7 @@ public class AsyncServer {
         selector = Selector.open();
     }
 
-    void start() throws IOException {
+    void start() {
 
         System.out.println("Starting server...");
 
@@ -56,12 +56,6 @@ public class AsyncServer {
                 System.out.println("ERROR in accepting client " + e.toString());
             }
         }
-    }
-
-    public void terminate() throws IOException {
-        terminate = true;
-        server.close();
-        selector.close();
     }
 
     private class SelectorRunnable implements Runnable {
@@ -127,7 +121,6 @@ public class AsyncServer {
                 case LOGGED_IN:
                     if (!msg.isEmpty()) {
                         Iterator<String> iterator = Arrays.asList(msg.split(LINE_SEP)).iterator();
-                        String line;
                         while (!(msg = iterator.next()).equals(EOT)) {
                             if (!msg.startsWith(SOF)) {
                                 System.out.println(SOF + " expected but received " + msg);

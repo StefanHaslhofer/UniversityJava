@@ -148,30 +148,6 @@ public class FileSaver {
         }
     }
 
-    private void saveToServerAsync() {
-        File[] files = new File(savePath).listFiles();
-        try (SocketChannel channel = SocketChannel.open()) {
-            channel.connect(new InetSocketAddress(SERVER, PORT));
-            PrintWriter out = new PrintWriter(channel.socket().getOutputStream());
-            channel.write(ByteBuffer.wrap((LOGIN + this.serverSaveDir).getBytes()));
-            StringBuilder data = new StringBuilder();
-            for (File file : files) {
-                List<String> lines = Files.readAllLines(file.toPath());
-                // the next line has to be the filename
-                data.append(SOF).append(LINE_SEP).append(file.getName()).append(LINE_SEP);
-                for (String line : lines) {
-                    data.append(line).append(LINE_SEP);
-                }
-                data.append(EOF).append(LINE_SEP);
-                System.out.println(file.getName() + " sent to " + SERVER + ":" + PORT);
-            }
-            data.append(EOT);
-            channel.write(ByteBuffer.wrap(data.toString().getBytes()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void sendData(PrintWriter out, File[] files) throws IOException {
         // the clients name is the first message
         send(out, LOGIN + this.serverSaveDir);
@@ -188,5 +164,35 @@ public class FileSaver {
             System.out.println(file.getName() + " sent to " + SERVER + ":" + PORT);
         }
         send(out, EOT);
+    }
+
+    private void saveToServerAsync() {
+        File[] files = new File(savePath).listFiles();
+        try (SocketChannel channel = SocketChannel.open()) {
+            channel.connect(new InetSocketAddress(SERVER, PORT));
+            PrintWriter out = new PrintWriter(channel.socket().getOutputStream());
+            channel.write(ByteBuffer.wrap((LOGIN + this.serverSaveDir).getBytes()));
+            StringBuilder data = new StringBuilder();
+
+            // iterate over files and append every line
+            if(files != null) {
+                for (File file : files) {
+                    List<String> lines = Files.readAllLines(file.toPath());
+                    // the next line has to be the filename
+                    data.append(SOF).append(LINE_SEP).append(file.getName()).append(LINE_SEP);
+                    for (String line : lines) {
+                        data.append(line).append(LINE_SEP);
+                    }
+                    data.append(EOF).append(LINE_SEP);
+                    System.out.println(file.getName() + " sent to " + SERVER + ":" + PORT);
+                }
+                data.append(EOT).append(LINE_SEP);
+                channel.write(ByteBuffer.wrap(data.toString().getBytes()));
+            }
+
+            channel.write(ByteBuffer.wrap((LOGOUT).getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
