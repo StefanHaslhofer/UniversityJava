@@ -14,10 +14,6 @@ public class ClientMain {
             isAsync = true;
         }
         Client client = new Client(args[0], args[1], args[2], isAsync);
-        try {
-            client.start();
-        } catch (InterruptedException e) {
-            System.out.println("Could not start client");
-        }
+        client.start();
     }
 }
