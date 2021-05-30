@@ -17,7 +17,7 @@ public class Client {
         fileSaver = new FileSaver(saveDir, serverSaveDir, changes, isAsync);
     }
 
-    public void start() throws InterruptedException {
+    public void start() {
         System.out.println("Starting client...");
         fileWatcher.startWatching();
         fileSaver.startSaving();

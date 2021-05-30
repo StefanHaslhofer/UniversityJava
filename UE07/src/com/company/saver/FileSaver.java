@@ -38,7 +38,7 @@ public class FileSaver {
     public void startSaving() {
         saveDirectoryAtStart();
         try {
-            executor.scheduleAtFixedRate(new SaveTask(this.changes, this.savePath), 1, 10, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(new SaveTask(this.savePath), 1, 10, TimeUnit.SECONDS);
         } catch (IOException e) {
             System.out.println("Could not create destination byte channel!");
         }
@@ -72,7 +72,7 @@ public class FileSaver {
         private Changes syncChanges;
         private final String savePath;
 
-        private SaveTask(Changes changes, String savePath) throws IOException {
+        private SaveTask(String savePath) throws IOException {
             syncChanges = new Changes();
             this.savePath = savePath;
         }
@@ -170,7 +170,6 @@ public class FileSaver {
         File[] files = new File(savePath).listFiles();
         try (SocketChannel channel = SocketChannel.open()) {
             channel.connect(new InetSocketAddress(SERVER, PORT));
-            PrintWriter out = new PrintWriter(channel.socket().getOutputStream());
             channel.write(ByteBuffer.wrap((LOGIN + this.serverSaveDir).getBytes()));
             StringBuilder data = new StringBuilder();
 
