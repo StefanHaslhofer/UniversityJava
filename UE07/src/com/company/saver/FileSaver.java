@@ -1,9 +1,13 @@
 package com.company.saver;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.*;
 import java.util.Iterator;
 import java.util.List;
@@ -21,12 +25,14 @@ public class FileSaver {
     public final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private final String savePath;
     private final String serverSaveDir;
+    private final boolean isAsync;
 
 
-    public FileSaver(String savePath, String serverSaveDir, Changes changes) {
+    public FileSaver(String savePath, String serverSaveDir, Changes changes, boolean isAsync) {
         this.changes = changes;
         this.savePath = savePath;
         this.serverSaveDir = serverSaveDir;
+        this.isAsync = isAsync;
     }
 
     public void startSaving() {
@@ -119,7 +125,11 @@ public class FileSaver {
 
             // start saving to the server after the files have been written to the local directory
             try {
-                saveToServer();
+                if (isAsync) {
+                    saveToServerAsync();
+                } else {
+                    saveToServer();
+                }
             } catch (Exception ex) {
                 System.out.println("Could not start communication with server " + SERVER + ":" + PORT);
             }
@@ -131,23 +141,52 @@ public class FileSaver {
         File[] files = new File(savePath).listFiles();
 
         try (Socket socket = new Socket(SERVER, PORT);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream())) {
-            // the clients name is the first message
-            send(out, this.serverSaveDir);
-            // iterate over files in directory
-            for(File file: files) {
-                List<String> lines = Files.readAllLines(file.toPath());
-                send(out, SOF);
-                // the next line has to be the filename
-                send(out, file.getName());
-                for (String line : lines) {
-                    send(out, line);
-                }
-                send(out, EOF);
-            }
+            sendData(out, files);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void saveToServerAsync() {
+        File[] files = new File(savePath).listFiles();
+        try (SocketChannel channel = SocketChannel.open()) {
+            channel.connect(new InetSocketAddress(SERVER, PORT));
+            PrintWriter out = new PrintWriter(channel.socket().getOutputStream());
+            channel.write(ByteBuffer.wrap((LOGIN + this.serverSaveDir).getBytes()));
+            StringBuilder data = new StringBuilder();
+            for (File file : files) {
+                List<String> lines = Files.readAllLines(file.toPath());
+                // the next line has to be the filename
+                data.append(SOF).append(LINE_SEP).append(file.getName()).append(LINE_SEP);
+                for (String line : lines) {
+                    data.append(line).append(LINE_SEP);
+                }
+                data.append(EOF).append(LINE_SEP);
+                System.out.println(file.getName() + " sent to " + SERVER + ":" + PORT);
+            }
+            data.append(EOT);
+            channel.write(ByteBuffer.wrap(data.toString().getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendData(PrintWriter out, File[] files) throws IOException {
+        // the clients name is the first message
+        send(out, LOGIN + this.serverSaveDir);
+        // iterate over files in directory
+        for (File file : files) {
+            List<String> lines = Files.readAllLines(file.toPath());
+            send(out, SOF);
+            // the next line has to be the filename
+            send(out, file.getName());
+            for (String line : lines) {
+                send(out, line);
+            }
+            send(out, EOF);
+            System.out.println(file.getName() + " sent to " + SERVER + ":" + PORT);
+        }
+        send(out, EOT);
     }
 }

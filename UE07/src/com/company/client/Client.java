@@ -11,11 +11,11 @@ public class Client {
     private final FileSaver fileSaver;
     private final String name;
 
-    public Client(String watchDir, String saveDir, String serverSaveDir) {
+    public Client(String watchDir, String saveDir, String serverSaveDir, boolean isAsync) {
         Changes changes = new Changes();
 
         fileWatcher = new FileWatcher(watchDir, changes);
-        fileSaver = new FileSaver(saveDir, serverSaveDir, changes);
+        fileSaver = new FileSaver(saveDir, serverSaveDir, changes, isAsync);
         this.name = serverSaveDir;
     }
 

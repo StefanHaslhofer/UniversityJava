@@ -1,6 +1,9 @@
 package com.company.sync;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -48,9 +51,9 @@ public class SyncServer {
         @Override
         public void run() {
 
-            try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
                 String clientName = receive(in);
+                clientName = clientName.substring(LOGIN.length());
                 String msg;
                 while (!(msg = receive(in)).equals(EOT)) {
                     if (!msg.startsWith(SOF)) {
@@ -65,7 +68,7 @@ public class SyncServer {
                         BufferedWriter bw = Files.newBufferedWriter(filePath);
                         // append lines
                         while (!(msg = receive(in)).equals(EOF)) {
-                            bw.write(msg+"\n");
+                            bw.write(msg+LINE_SEP);
                         }
                         bw.flush();
                         bw.close();
