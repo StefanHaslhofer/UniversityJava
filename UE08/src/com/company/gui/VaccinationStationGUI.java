@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.RemoteException;
 
 public final class VaccinationStationGUI<VaccineClass extends Vaccine> {
 
@@ -150,7 +151,7 @@ public final class VaccinationStationGUI<VaccineClass extends Vaccine> {
             if (newName != null) {
                 try {
                     model.createVaccine(newName);
-                } catch (IllegalArgumentException error) {
+                } catch (IllegalArgumentException | RemoteException error) {
                     JOptionPane.showMessageDialog(frame, error.getMessage(), "Error while creating a new vaccine", JOptionPane.ERROR_MESSAGE);
                 }
             }
