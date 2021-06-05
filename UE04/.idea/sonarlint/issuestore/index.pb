@@ -13,3 +13,7 @@ Q
 !src/gradeTable/model/Student.java,2\d\2da2f0f0ffd7be3a3b0cff3ed88d17fc3f9efb98
 N
 src/backend/DemoDBManager.java,0\d\0dcffa5322be69135224dbabc7682f78a7b06e21
+S
+#.idea/sonarlint/issuestore/index.pb,9\f\9fe84ebb15faf917b7def6236dba604453cc61e0
+L
+resultsDB/service.properties,4\1\4162de9e8ddf7ee204700954e9045e2e6d29ea3c
