@@ -1,0 +1,12 @@
+
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(ãö üÿÿÿÿ8ûÙƒñ/
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(Ã»¦¡üÿÿÿÿ8ûÙƒñ/
+X
+java:S1128"6Remove this unused import 'com.company.model.Vaccine'.(ßéª¼øÿÿÿÿ8ô‚›ñ/
+W
+java:S1128
+"5Remove this unused import 'java.rmi.RemoteException'.(Ä÷àÿÿÿÿÿ8û¡ñ/
+]
+java:S1128";Remove this unused import 'java.rmi.AlreadyBoundException'.(ÿåóœÿÿÿÿÿ8û¡ñ/
+L
+java:S1481"*Remove this unused "rstub" local variable.(Ğâ­Åıÿÿÿÿ8ÖÛ ñ/

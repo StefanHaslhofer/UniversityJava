@@ -4,7 +4,7 @@ final class RMIConstants {
 
     static final String HOST = "localhost";
     static final int PORT = 12345;
-    static final String VACCINATION_MODEL_NAME = "RMIVacc-Server";
+    static final String VACCINATION_SERVER_NAME = "VaccinationServer";
 
     private RMIConstants() {
     }

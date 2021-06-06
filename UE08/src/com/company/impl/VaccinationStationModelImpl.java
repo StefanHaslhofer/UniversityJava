@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class VaccinationStationModelImpl extends UnicastRemoteObject implements VaccinationStationModel<VaccineImpl> {
-
+    // use executor service as displayed in the slides
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     private final List<VaccineImpl> vaccines;
@@ -26,24 +26,42 @@ public final class VaccinationStationModelImpl extends UnicastRemoteObject imple
     }
 
     private void fireVaccineAdded(VaccineImpl addedVaccine) {
-        listeners.forEach(l -> l.onVaccineAdded(addedVaccine));
+        listeners.forEach(l -> executorService.submit(() -> {
+            try {
+                l.onVaccineAdded(addedVaccine);
+            } catch (RemoteException e) {
+                System.err.println("\"vaccine added\" event could not be fired " + e);
+            }
+        }));
     }
 
     private void fireVaccineChanged(VaccineImpl changedVaccine) {
-        listeners.forEach(l -> l.onVaccineChanged(changedVaccine));
+        listeners.forEach(l -> executorService.submit(() -> {
+            try {
+                l.onVaccineChanged(changedVaccine);
+            } catch (RemoteException e) {
+                System.err.println("\"vaccine changed\" event could not be fired " + e);
+            }
+        }));
     }
 
     private void fireVaccineRemoved(VaccineImpl removedVaccine) {
-        listeners.forEach(l -> l.onVaccineRemoved(removedVaccine));
+        listeners.forEach(l -> executorService.submit(() -> {
+            try {
+                l.onVaccineRemoved(removedVaccine);
+            } catch (RemoteException e) {
+                System.err.println("\"vaccine removed\" event could not be fired " + e);
+            }
+        }));
     }
 
     @Override
-    public List<VaccineImpl> getVaccines() {
+    public synchronized List<VaccineImpl> getVaccines() {
         return Collections.unmodifiableList(new ArrayList<>(vaccines));
     }
 
     @Override
-    public VaccineImpl getVaccine(String name) throws IllegalArgumentException, NoSuchElementException {
+    public synchronized VaccineImpl getVaccine(String name) throws IllegalArgumentException, NoSuchElementException {
         if (name == null) {
             throw new IllegalArgumentException("Invalid name");
         }
@@ -52,23 +70,26 @@ public final class VaccinationStationModelImpl extends UnicastRemoteObject imple
 
     @Override
     public void createVaccine(String name) throws IllegalArgumentException, RemoteException {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Invalid name");
-        }
-
-        for (Vaccine existingVaccine : vaccines) {
-            if (name.equals(existingVaccine.getName())) {
-                throw new IllegalArgumentException("Duplicate vaccine: " + name);
+        synchronized (this) {
+            if (name == null || name.isEmpty()) {
+                throw new IllegalArgumentException("Invalid name");
             }
-        }
 
-        final VaccineImpl vaccine = new VaccineImpl(name);
-        vaccines.add(vaccine);
-        fireVaccineAdded(vaccine);
+            for (Vaccine existingVaccine : vaccines) {
+                if (name.equals(existingVaccine.getName())) {
+                    throw new IllegalArgumentException("Duplicate vaccine: " + name);
+                }
+            }
+
+            final VaccineImpl vaccine = new VaccineImpl(name);
+            vaccines.add(vaccine);
+            fireVaccineAdded(vaccine);
+        }
     }
 
     @Override
-    public void setDescription(VaccineImpl vaccine, String description) throws IllegalArgumentException {
+    public synchronized void setDescription(String vaccineName, String description) throws IllegalArgumentException {
+        VaccineImpl vaccine = this.getVaccine(vaccineName);
         if (vaccine == null || description == null) {
             throw new IllegalArgumentException("Invalid change");
         }
@@ -78,7 +99,8 @@ public final class VaccinationStationModelImpl extends UnicastRemoteObject imple
     }
 
     @Override
-    public void increaseQuantity(VaccineImpl vaccine, int increase) throws IllegalArgumentException {
+    public synchronized void increaseQuantity(String vaccineName, int increase) throws IllegalArgumentException {
+        VaccineImpl vaccine = this.getVaccine(vaccineName);
         if (vaccine == null) {
             throw new IllegalArgumentException("Invalid vaccine to change");
         } else if (increase < 0) {
@@ -98,13 +120,14 @@ public final class VaccinationStationModelImpl extends UnicastRemoteObject imple
     }
 
     @Override
-    public void decreaseQuantity(VaccineImpl vaccine, int decrease) throws IllegalArgumentException {
+    public synchronized void decreaseQuantity(String vaccineName, int decrease) throws IllegalArgumentException {
         if (decrease < 0) {
             throw new IllegalArgumentException("Invalid quantity decrease: " + decrease);
         } else if (decrease == 0) {
             return;
         }
 
+        VaccineImpl vaccine = this.getVaccine(vaccineName);
         if (vaccine.getQuantity() < decrease) {
             throw new IllegalArgumentException("Minimum quantity is 0");
         } else {
@@ -114,7 +137,8 @@ public final class VaccinationStationModelImpl extends UnicastRemoteObject imple
     }
 
     @Override
-    public void removeVaccine(VaccineImpl vaccine) throws IllegalArgumentException {
+    public synchronized void removeVaccine(String vaccineName) throws IllegalArgumentException {
+        VaccineImpl vaccine = this.getVaccine(vaccineName);
         final boolean removed = vaccines.remove(vaccine);
         if (removed) {
             fireVaccineRemoved(vaccine);

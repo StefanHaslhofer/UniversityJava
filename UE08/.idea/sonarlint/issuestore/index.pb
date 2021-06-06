@@ -13,3 +13,11 @@ e
 .src/com/company/gui/VaccinationStationGUI.java,1\9\197ec7120fc34d1fe16a43f2c0f0e264e82df556
 b
 2src/com/company/model/InventoryChangeListener.java,9\3\934dd50cf239b7de3554eafdeb0e100c2c4e7668
+8
+UE08.iml,e\1\e11056c48a260f91800b50b09b4176271901d4e3
+U
+%src/com/company/rmi/RMIConstants.java,f\3\f3219465855de83bc565b9ff045fa6854735d348
+R
+"src/com/company/rmi/RMIClient.java,f\1\f1e939669a8f0c42aef8357b7255011e54af022d
+R
+"src/com/company/rmi/RMIServer.java,e\0\e0ef474575b861b96a13a0d36a0e2d39bd8b4091

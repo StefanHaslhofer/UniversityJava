@@ -1,0 +1,11 @@
+
+L
+java:S1948"*Make "vaccines" transient or serializable.(ôÍ˜»şÿÿÿÿ8àŞëï/
+M
+java:S1948"+Make "listeners" transient or serializable.(’”ùÿÿÿÿ8àŞëï/
+M
+java:S2160"+Override the "equals" method in this class.(µª€›úÿÿÿÿ8àŞëï/
+O
+java:S1068"3Remove this unused "executorService" private field.(²¾Œ|8ı¢‚ğ/
+M
+java:S1948"1Make "executorService" transient or serializable.(²¾Œ|8ı¢‚ğ/
