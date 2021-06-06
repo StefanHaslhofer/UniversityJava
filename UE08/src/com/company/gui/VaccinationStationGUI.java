@@ -180,17 +180,17 @@ public final class VaccinationStationGUI<VaccineClass extends Vaccine> {
             }
 
             @Override
-            public void onVaccineAdded(VaccineClass addedVaccine) throws RemoteException {
+            public void onVaccineAdded(VaccineClass addedVaccine) {
                 stockListModel.addElement(new DisplayVaccine<>(addedVaccine));
             }
 
             @Override
-            public void onVaccineChanged(VaccineClass changedVaccine) throws RemoteException {
+            public void onVaccineChanged(VaccineClass changedVaccine) {
                 updateDetailsView();
             }
 
             @Override
-            public void onVaccineRemoved(VaccineClass removedVaccine) throws RemoteException {
+            public void onVaccineRemoved(VaccineClass removedVaccine) {
                 stockListModel.removeElement(new DisplayVaccine<>(removedVaccine));
             }
         }
